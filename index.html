@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Lot Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-primary text-primary transition-colors duration-300 font-inter min-h-screen pb-10">
+
+    <!-- Header -->
+    <header class="bg-card shadow-lg sticky top-0 z-40 border-b border-custom backdrop-blur-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-square-parking text-3xl text-accent"></i>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">Smart Parking</h1>
+                    <p class="text-xs text-muted">Management System by Dulnindu Saranga</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button id="view-history-btn" class="text-secondary hover:text-accent font-medium text-sm transition-colors flex items-center">
+                    <i class="fa-solid fa-clock-rotate-left mr-2"></i> History
+                </button>
+                <button id="theme-toggle" class="p-2 rounded-full bg-secondary text-secondary hover:text-accent transition-all border border-custom">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 lg:px-6 mt-8">
+        
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-card border border-custom rounded-xl p-5 shadow-sm flex items-center justify-between card-hover">
+                <div>
+                    <p class="text-sm text-muted font-medium mb-1">Total Spots</p>
+                    <h3 class="text-3xl font-bold" id="stat-total">100</h3>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-500">
+                    <i class="fa-solid fa-border-all text-xl"></i>
+                </div>
+            </div>
+            <div class="bg-card border border-custom rounded-xl p-5 shadow-sm flex items-center justify-between card-hover">
+                <div>
+                    <p class="text-sm text-muted font-medium mb-1">Available</p>
+                    <h3 class="text-3xl font-bold text-green-500" id="stat-available">100</h3>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-500">
+                    <i class="fa-solid fa-check text-xl"></i>
+                </div>
+            </div>
+            <div class="bg-card border border-custom rounded-xl p-5 shadow-sm flex items-center justify-between card-hover">
+                <div>
+                    <p class="text-sm text-muted font-medium mb-1">Occupied</p>
+                    <h3 class="text-3xl font-bold text-red-500" id="stat-occupied">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-500">
+                    <i class="fa-solid fa-car text-xl"></i>
+                </div>
+            </div>
+            <div class="bg-card border border-custom rounded-xl p-5 shadow-sm flex items-center justify-between card-hover">
+                <div>
+                    <p class="text-sm text-muted font-medium mb-1">Revenue</p>
+                    <h3 class="text-3xl font-bold text-accent" id="stat-revenue">$0.00</h3>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                    <i class="fa-solid fa-dollar-sign text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Left Side: Parking Grid -->
+            <div class="lg:w-2/3 bg-card border border-custom rounded-xl shadow-sm overflow-hidden flex flex-col">
+                <!-- Floor Tabs -->
+                <div class="flex border-b border-custom">
+                    <button class="floor-tab active flex-1 py-4 font-semibold text-sm transition-colors" data-floor="1">
+                        Floor 1 (Spots 1-50)
+                    </button>
+                    <button class="floor-tab flex-1 py-4 font-semibold text-sm text-muted transition-colors hover:text-primary" data-floor="2">
+                        Floor 2 (Spots 51-100)
+                    </button>
+                </div>
+                
+                <div class="p-6 flex-grow">
+                    <!-- Legend -->
+                    <div class="flex flex-wrap justify-center gap-4 mb-6 text-sm">
+                        <div class="flex items-center"><span class="w-4 h-4 rounded bg-available border border-available-border mr-2"></span> Available</div>
+                        <div class="flex items-center"><span class="w-4 h-4 rounded bg-occupied border border-occupied-border mr-2"></span> Occupied</div>
+                        <div class="flex items-center"><span class="w-4 h-4 rounded bg-vip border border-vip-border mr-2"></span> VIP Spot</div>
+                    </div>
+
+                    <!-- The Grid -->
+                    <div id="parking-grid" class="grid grid-cols-5 md:grid-cols-10 gap-3">
+                        <!-- Spots generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Control Panel -->
+            <div class="lg:w-1/3 space-y-6">
+                
+                <!-- Action Panel -->
+                <div class="bg-card border border-custom rounded-xl shadow-sm p-6">
+                    <div class="flex space-x-2 border-b border-custom mb-6 pb-2">
+                        <button id="tab-in" class="action-tab active pb-2 border-b-2 border-accent text-accent font-semibold flex-1">Check In</button>
+                        <button id="tab-out" class="action-tab pb-2 border-b-2 border-transparent text-muted hover:text-primary font-semibold flex-1">Check Out</button>
+                        <button id="tab-search" class="action-tab pb-2 border-b-2 border-transparent text-muted hover:text-primary font-semibold flex-1">Search</button>
+                    </div>
+
+                    <!-- Check In Form -->
+                    <form id="form-in" class="action-form">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1 text-secondary">License Plate</label>
+                            <input type="text" id="in-plate" class="input-field" placeholder="e.g. ABC-1234" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1 text-secondary">Vehicle Type</label>
+                            <select id="in-type" class="input-field">
+                                <option value="car">Car ($5/hr)</option>
+                                <option value="motorcycle">Motorcycle ($3/hr)</option>
+                                <option value="truck">Truck ($8/hr)</option>
+                                <option value="vip">VIP Class ($15/hr)</option>
+                            </select>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-1 text-secondary">Preferred Spot (Optional)</label>
+                            <input type="number" id="in-spot" class="input-field" placeholder="Auto-assign if empty" min="1" max="100">
+                        </div>
+                        <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold shadow-md"><i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> Check In Vehicle</button>
+                    </form>
+
+                    <!-- Check Out Form -->
+                    <form id="form-out" class="action-form hidden">
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-1 text-secondary">License Plate</label>
+                            <input type="text" id="out-plate" class="input-field" placeholder="e.g. ABC-1234" required>
+                        </div>
+                        <button type="submit" class="w-full py-3 rounded-lg font-semibold text-white bg-red-600 hover:bg-red-700 shadow-md transition-all transform hover:-translate-y-0.5"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Check Out & Pay</button>
+                    </form>
+
+                    <!-- Search Form -->
+                    <form id="form-search" class="action-form hidden">
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-1 text-secondary">License Plate</label>
+                            <input type="text" id="search-plate" class="input-field" placeholder="e.g. ABC-1234" required>
+                        </div>
+                        <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold shadow-md"><i class="fa-solid fa-magnifying-glass mr-2"></i> Locate Vehicle</button>
+                    </form>
+                </div>
+
+                <!-- Active Vehicles List -->
+                <div class="bg-card border border-custom rounded-xl shadow-sm p-6 flex flex-col h-[400px]">
+                    <div class="flex justify-between items-center mb-4 border-b border-custom pb-2">
+                        <h3 class="font-bold text-lg"><i class="fa-solid fa-list-ul mr-2 text-accent"></i> Active Vehicles</h3>
+                        <span class="text-xs bg-accent text-white px-2 py-1 rounded-full" id="active-count">0</span>
+                    </div>
+                    <div id="vehicle-list" class="overflow-y-auto pr-2 flex-grow space-y-3">
+                        <!-- List populated by JS -->
+                        <div class="text-center text-muted mt-10 text-sm">No vehicles parked right now.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Receipt Modal Overlay -->
+    <div id="receipt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-card border border-custom rounded-2xl shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-transform duration-300 overflow-hidden">
+            <div class="bg-accent text-white p-6 text-center">
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-receipt text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold tracking-widest uppercase">Smart Parking</h2>
+                <p class="text-sm opacity-80">Official Checkout Receipt</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between border-b border-custom pb-2">
+                    <span class="text-muted text-sm">License Plate</span>
+                    <span class="font-bold" id="rec-plate">ABC-1234</span>
+                </div>
+                <div class="flex justify-between border-b border-custom pb-2">
+                    <span class="text-muted text-sm">Vehicle Type</span>
+                    <span class="font-bold capitalize" id="rec-type">Car</span>
+                </div>
+                <div class="flex justify-between border-b border-custom pb-2">
+                    <span class="text-muted text-sm">Spot Number</span>
+                    <span class="font-bold text-accent" id="rec-spot">42 (Floor 1)</span>
+                </div>
+                <div class="flex justify-between border-b border-custom pb-2">
+                    <span class="text-muted text-sm">Check-in</span>
+                    <span class="font-medium text-sm" id="rec-in">10:00 AM</span>
+                </div>
+                <div class="flex justify-between border-b border-custom pb-2">
+                    <span class="text-muted text-sm">Check-out</span>
+                    <span class="font-medium text-sm" id="rec-out">12:30 PM</span>
+                </div>
+                <div class="flex justify-between border-b border-custom pb-2">
+                    <span class="text-muted text-sm">Duration</span>
+                    <span class="font-medium text-sm" id="rec-duration">2h 30m</span>
+                </div>
+                <div class="flex justify-between pt-4 mt-2 bg-secondary rounded-lg p-4">
+                    <span class="text-lg font-bold text-secondary">Total Paid</span>
+                    <span class="text-2xl font-black text-green-500" id="rec-fee">$15.00</span>
+                </div>
+            </div>
+            <div class="p-6 bg-secondary text-center">
+                <button id="close-receipt" class="w-full py-3 bg-card border border-custom hover:border-accent text-primary font-bold rounded-lg transition-colors shadow-sm">
+                    Close Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3"></div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-card border border-custom rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col transform scale-95 transition-transform duration-300">
+            <div class="p-6 border-b border-custom flex justify-between items-center">
+                <h2 class="text-xl font-bold"><i class="fa-solid fa-history mr-2 text-accent"></i> Transaction History</h2>
+                <button id="close-history" class="text-muted hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-muted text-sm border-b border-custom">
+                            <th class="pb-2 font-medium">Plate</th>
+                            <th class="pb-2 font-medium">Spot</th>
+                            <th class="pb-2 font-medium">Duration</th>
+                            <th class="pb-2 font-medium">Fee</th>
+                            <th class="pb-2 font-medium">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body" class="text-sm">
+                        <!-- History injected here -->
+                    </tbody>
+                </table>
+                <div id="history-empty" class="text-center text-muted mt-8 hidden">No transaction history found.</div>
+            </div>
+            <div class="p-4 border-t border-custom bg-secondary flex justify-end rounded-b-2xl">
+                <button id="clear-history" class="text-red-500 hover:text-red-600 text-sm font-semibold px-4 py-2"><i class="fa-solid fa-trash mr-1"></i> Clear History</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/script.js"></script>
+</body>
+</html>
